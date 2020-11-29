@@ -5,44 +5,77 @@ namespace HTTP
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             //https://post-shift.ru/api/?lang=ru
             Console.OutputEncoding = Encoding.UTF8;
             
             PostShiftQuery query = new PostShiftQuery();
-            int id = 1;
-
-            string[] arrayAction = new string[]
-            {
-                $"new&name={Generator.GenerationName(8)}", //создание нового ящика
-                $"getlist&key=", //получение списка писем
-                $"livetime&key=", //узнать оставшееся время жизни почты
-                $"update&key=", //продлить время жизни почты до 10 минут
-                $"delete&key=", //удалить использованный ящик
-                $"clear&key=", //очистить ящик
-                "deleteall", //удалить все активные ящики по ip
-                $"getmail&key=" //получение текста письма
-            };
             
             do
             {
-                Console.Write("Введите цифру от 0 до 7: ");
-                int act = Convert.ToInt32(Console.ReadLine());
-                switch (act)
+                Console.Clear();
+                Console.WriteLine("0 - создать новый почтовый ящик");
+                Console.WriteLine("1 - получить список писем");
+                Console.WriteLine("2 - получить время жизни ящика");
+                Console.WriteLine("3 - увеличить время жизни ящика на 10 мин");
+                Console.WriteLine("4 - удалить ящик");
+                Console.WriteLine("5 - очистить ящик");
+                Console.WriteLine("6 - удалить все ящики");
+                Console.WriteLine("7 - получить текст письма");
+                Console.Write(">> ");
+                try
                 {
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                        arrayAction[act] += query.key;
-                        break;
-                    case 7:
-                        arrayAction[7] += query.key + "&id=" + id;
-                        break;
+                    int act = Convert.ToInt32(Console.ReadLine());
+
+                    string result = "";
+                    switch (act)
+                    {
+                        case 0:
+                            result = query.CreateEmail();
+                            break;
+                        case 1:
+                            result = query.GetListOfLetters();
+                            break;
+                        case 2:
+                            result = query.GetLifeTime();
+                            break;
+                        case 3:
+                            result = query.ProlongLifeTime();
+                            break;
+                        case 4:
+                            result = query.DeleteEmail();
+                            break;
+                        case 5:
+                            result = query.ClearEmail();
+                            break;
+                        case 6:
+                            result = query.DeleteAllEmails();
+                            break;
+                        case 7:
+                            Console.Write("Введите идентификатор письма: ");
+                            try
+                            {
+                                int id = Convert.ToInt32(Console.Read());
+                                result = query.GetTextOfLetter(id);
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Введите число!");
+                            }
+                            break;
+                        default:
+                            Console.WriteLine("Введите число из диапазона!");
+                            break;
+                    }
+                    if (result != "")
+                        Console.WriteLine(result);
                 }
-                query.GetResponse(arrayAction[act]);
+                catch
+                {
+                    Console.WriteLine("Введите число от 0 до 7!");
+                }
+                Console.Write("Press Enter to continue");
             } 
             while (Console.ReadKey().Key != ConsoleKey.Escape);
 
